@@ -4,14 +4,15 @@ import (
 	"log"
 
 	"github.com/jmoiron/sqlx"
-	_ "github.com/sijms/go-ora/v2"
+	// _ "github.com/sijms/go-ora/v2"
 )
 
 type DataBase struct {
-	DB   *sqlx.DB   // 数据库连接
-	stmt *sqlx.Stmt // prepare后的结果
-	tx   *sqlx.Tx   // 开启事务使用tx执行
-	rows *sqlx.Rows // Next的行数
+	DB      *sqlx.DB   // 数据库连接
+	stmt    *sqlx.Stmt // prepare后的结果
+	tx      *sqlx.Tx   // 开启事务使用tx执行
+	rows    *sqlx.Rows // Next的行数
+	builder *build
 }
 type build struct {
 	head      string // sql类型 SELECT//UPDATE//DELTE...
@@ -51,14 +52,15 @@ const (
 	index   = "CREATE INDEX"
 )
 
-func NewDB(url string) *DataBase {
+func NewDB(databse, url string) *DataBase {
 	var d DataBase
-	db, err := sqlx.Connect("oracle", url)
+	db, err := sqlx.Connect(databse, url)
 	if err != nil {
 		log.Println(err)
 		return nil
 	}
 	d.DB = db
+	d.builder = NewBuild()
 	return &d
 }
 

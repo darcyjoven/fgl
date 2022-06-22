@@ -181,7 +181,7 @@ func (db *build) Join(from, table, where string, v ...any) *build {
 	}
 	var _, ok = db.joins[from]
 	if !ok {
-		db.joins[from] = make([]join, 1)
+		db.joins[from] = make([]join, 0)
 	}
 	db.joins[from] = append(db.joins[from], join{
 		table:  table,
@@ -427,7 +427,7 @@ func exec(db *DataBase, s *string, arg ...any) int64 {
 		re, err = db.tx.Exec(*s, arg...)
 	}
 	if err != nil {
-		dbErr(db,err)
+		dbErr(db, err)
 		return 0
 	}
 	r, err := re.RowsAffected()
@@ -443,15 +443,15 @@ func query(db *DataBase, sql *string, arg ...any) [][]any {
 	var (
 		data [][]any
 		rows *sqlx.Rows
-		err error
+		err  error
 	)
-	if db.tx!=nil{
-		rows, err=db.tx.Queryx(*sql, arg...)
-	}else{
-		rows, err=db.DB.Queryx(*sql, arg...)
+	if db.tx != nil {
+		rows, err = db.tx.Queryx(*sql, arg...)
+	} else {
+		rows, err = db.DB.Queryx(*sql, arg...)
 	}
 	if err != nil {
-		dbErr(db,err)
+		dbErr(db, err)
 		return data
 	}
 	for rows.Next() {
@@ -463,4 +463,82 @@ func query(db *DataBase, sql *string, arg ...any) [][]any {
 		data = append(data, temp)
 	}
 	return data
+}
+
+// DB 也可直接执行静态SQL
+func (db *DataBase) Insert() *string {
+	return db.builder.Insert()
+}
+func (db *DataBase) InsertDo() int64 {
+	return db.builder.InsertDo(db)
+}
+func (db *DataBase) Delete() *string {
+	return db.builder.Delete()
+}
+func (db *DataBase) DeleteDo() int64 {
+	return db.builder.DeleteDo(db)
+}
+func (db *DataBase) Update() *string {
+	return db.builder.Update()
+}
+func (db *DataBase) UpdateDo() int64 {
+	return db.builder.UpdateDo(db)
+}
+func (db *DataBase) Select() *string {
+	return db.builder.Select()
+}
+func (db *DataBase) SelectDo() [][]any {
+	return db.builder.SelectDo(db)
+}
+func (db *DataBase) Create() *string {
+	return db.builder.Create()
+}
+func (db *DataBase) CreateDo() int64 {
+	return db.builder.CreateDo(db)
+}
+func (db *DataBase) Index() *string {
+	return db.builder.Index()
+}
+func (db *DataBase) IndexDo() int64 {
+	return db.builder.IndexDo(db)
+}
+func (db *DataBase) Col(cols ...string) *DataBase {
+	db.builder.Col(cols...)
+	return db
+}
+func (db *DataBase) From(s string) *DataBase {
+	db.builder.From(s)
+	return db
+}
+func (db *DataBase) Where(s string) *DataBase {
+	db.builder.Where(s)
+	return db
+}
+func (db *DataBase) Group(s string) *DataBase {
+	db.builder.Group(s)
+	return db
+}
+func (db *DataBase) Order(s string) *DataBase {
+	db.builder.Order(s)
+	return db
+}
+func (db *DataBase) Unique() *DataBase {
+	db.builder.Unique()
+	return db
+}
+func (db *DataBase) Values(v ...any) *DataBase {
+	db.builder.Values(v...)
+	return db
+}
+func (db *DataBase) Having(s string) *DataBase {
+	db.builder.Having(s)
+	return db
+}
+func (db *DataBase) Join(from string, table string, where string, v ...any) *DataBase {
+	db.builder.Join(from, table, where, v...)
+	return db
+}
+func (db *DataBase) Session(b bool) *DataBase {
+	db.builder.Session(b)
+	return db
 }
