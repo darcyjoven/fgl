@@ -47,7 +47,7 @@ const (
 	update  = "UPDATE"
 	delete  = "DELETE FROM"
 	insert  = "INSERT INTO"
-	create  = "CREATE GLOBAL TEMPORARY"
+	create  = "CREATE TABLE"
 	drop    = "DROP TABLE"
 	index   = "CREATE INDEX"
 )
