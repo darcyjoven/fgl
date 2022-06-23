@@ -194,7 +194,7 @@ func (db *build) Join(from, table, where string, v ...any) *build {
 // 是否建立中间表，不调用此函数就不是中间表。
 // true 代表是会话级中间表，false代表是事务级中间表
 func (db *build) Session(b bool) *build {
-	*db.session = b
+	db.session = &b
 	return db
 }
 
@@ -312,18 +312,16 @@ func createString(db *build) *string {
 		r string
 	)
 	// Create
-	r = r + db.head + "("
-	//col
-	r = r + colStatements(db.cols)
-	r = r + ")"
-	if db.session != nil {
-		if *db.session {
-			r = r + " ON COMMIT DELETE ROWS"
-		} else {
-			r = r + " ON COMMIT PRESERVE ROWS"
-		}
+	if len(db.tables) == 0 {
+		log.Println("至少有一个表名")
 	}
-	r = r + ")"
+	for _, v := range db.tables {
+		r = r + db.head + " " + v + " ("
+		//col
+		r = r + colStatements(db.cols)
+		r = r + ")"
+	}
+
 	return &r
 }
 
